@@ -1,0 +1,123 @@
+\documentclass{article}
+\usepackage{url}
+\usepackage[table,xcdraw]{xcolor}
+\usepackage[normalem]{ulem}
+\useunder{\uline}{\ul}{}
+\title {Python Lab Final Project: PyAuction}
+\author{Behrad Moniri \and Alireza Baneshi}
+\begin{document}
+\maketitle
+\section{Introduction}
+
+PyAuction is a Auction application in Python. It has been developed as the final project of the course "Python Lab" from the department of Electrical Engineering at Sharif University of Technology taught by Dr. Matin Hashemi. 
+
+\section{Package Requirements}
+PyAuction requires the following packages:
+
+\begin{itemize}
+	\item PyQt5
+	\item Pandas
+	\item time, random, os, sys, string, datetime
+\end{itemize}
+MuTT should also be installed and configured on your machine for handling the emails. A virtual environment with all required packages installed is available on the project Github:
+\url{http://www.github.com/bemoniri/PyAuction}
+
+\section{Running PyAuction}
+
+PyAuction consists of two separate parts: a client and a server. In order to run PyAuction on your computer, you must first run \texttt{server.py} and then \texttt{login.py} with Python3. Running the \texttt{login.py} will popup the login page, in which you can start working with PyAuction.
+
+\section{Functionality}
+\subsection{Register}
+After filling the username and email in the registration page, an email will be sent to you along with a random password which you can use to sign in to PyAuction. This password can later be changed.
+
+\subsection{Login}
+With an account, you can use your username and password to login and enter the main auction page.
+
+\subsection{Main Auction Page}
+
+You can use the main auction page to create a new auction (The top bar). Each auction can either be a Monaghese or Mozayedeh with a starting price and a finish time. 
+
+All available auctions, their winning prices and deadline can be seen in the Auction page. You can view all the bids for a given auction using the "See Bids" button of the intended auction.
+
+Bids are also made through this page by entering the bid price and clicking the "Bid" button.
+
+\subsection{Profile}
+The profile page is where you can change you password, see a list of all your active bids and your bids for previous auctions.
+
+\subsection{Bids and Auction}
+
+When we reach the deadline of an auction, the server program automatically ends the auction and no more bids can be made. The server sends all the information regarding the auction, the winner and all bids as an email to all bidders and the poster of the auction.
+
+\section{Code Structure}
+The client side scripts and the server side script are discussed below.
+
+\subsection{Server Side}
+\texttt{server.py} checks all auctions every 3 seconds. If a deadline of an auction has reached, this scripts closes the auction and moves all of its data to \texttt{old\_} files. The script also sends an email to all biders and the poster of the auction announcing the name of the winner and all the bids.
+
+\subsection{Client Side}
+
+\texttt{login.py} is the login page and handles logins and registers. In order to run the application, you should tun this file with Python3. The main auction page and the profile page are all handled in the 
+\texttt{auctionsite.py} script.
+
+The code is object-oriented. There is an object for every page of the application. For instance, there is a \texttt{Login} class, containing all information of the Login page. Each class has a method called \texttt{setup*}. This function is in charge of setting up the graphics.
+
+\subsection{Database}
+Four comma separated value files are used as the database. The details of these files are as follows:
+
+\section{Tables}
+
+We use PyQt5 tables to show
+
+
+\begin{itemize}
+\item
+\texttt{users.csv}:
+
+This file contains all the information about the users, their emails and passwords.
+
+\item 
+\texttt{auctions.csv}:
+
+This file contains the active auction information. The user creating the auction, the initial price and the deadline, among other information about each auction.
+
+\item 
+\texttt{bids.csv}:
+
+This file contains the details of all bids for active auctions.
+
+
+\item 
+\texttt{old\_ variants}:
+
+\texttt{old\_bids.csv} and \texttt{old\_auctions.csv}
+are similar to \texttt{bids.csv} and \texttt{auctions.csv} except that they contain the information about the auctions that have been finished.
+\end{itemize}
+
+\section{Emails}
+All the emails are send through MuTT. In order ro configure MuTT, see e.g.
+
+\url{https://www.thegeekdiary.com/how-to-install-and-configure-mutt-in-centos-rhel/}
+
+
+\section{Initialization Function}
+
+The \texttt{init.py} script, initializes PyAuction with the following five users:
+
+% Please add the following required packages to your document preamble:
+% \usepackage[table,xcdraw]{xcolor}
+
+\begin{table}[h!]
+	\centering
+	\begin{tabular}{ccc}
+		\multicolumn{1}{l}{usenrame}                          & \multicolumn{1}{l}{password}                   & email                                                                   \\ \hline
+		\multicolumn{1}{|c|}{{\ul a}}                         & \multicolumn{1}{c|}{\textbf{a}}                & \multicolumn{1}{c|}{bemoniri@live.com}                                  \\ \hline
+		\rowcolor[HTML]{EFEFEF} 
+		\multicolumn{1}{|c|}{\cellcolor[HTML]{EFEFEF}{\ul b}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}b} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}moniribehrad@gmail.com}     \\ \hline
+		\multicolumn{1}{|c|}{{\ul c}}                         & \multicolumn{1}{c|}{c}                         & \multicolumn{1}{c|}{baneshi.alireza77@gmail.com}                        \\ \hline
+		\rowcolor[HTML]{EFEFEF} 
+		\multicolumn{1}{|c|}{\cellcolor[HTML]{EFEFEF}{\ul d}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}d} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}amir.amirinezhad@gmail.com} \\ \hline
+	\end{tabular}
+\end{table}
+
+This function also creates several auctions and bids.
+\end{document}
