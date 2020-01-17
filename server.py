@@ -5,7 +5,7 @@ import os
 while True:
 
     print("Server Check")
-    current_time  = time.time()
+    current_time = time.time()
     df = pd.read_csv("auctions.csv")
     timelist = df["Time"].values
     for end_time in timelist:
@@ -16,12 +16,12 @@ while True:
             df = df[df.Time != end_time]
             df.to_csv("auctions.csv", index=False)
 
-
             old_df = pd.read_csv("old_auctions.csv")
-            s = pd.Series([to_del.Name.values[0], to_del.Type.values[0], to_del.Details.values[0], to_del.FirstBid.values[0], to_del.Time.values[0]], index=["Name", "Type", "Details", "FirstBid", "Time"])
+            s = pd.Series(
+                [to_del.Name.values[0], to_del.Type.values[0], to_del.Details.values[0], to_del.FirstBid.values[0],
+                 to_del.Time.values[0]], index=["Name", "Type", "Details", "FirstBid", "Time"])
             old_df = old_df.append(s, ignore_index=True)
             old_df.to_csv('old_auctions.csv', index=False)
-
 
             auction_name = to_del.Name.values[0]
             auction_type = to_del.Type.values[0]
@@ -37,8 +37,7 @@ while True:
                 ex_price = min(to_del.Price.values.tolist())
                 winner = bdf[bdf["Price"] == ex_price].User.values
 
-            email_message = str(bdf) + "\n" + "Winner is:" + winner
-
+            email_message = "The auction " + auction_name + " has ended!" + "\n" + "The bids are as follows:\n" + str(to_del) + "\n\n\n" + "The winner is: " + winner + "\n\n\n\n" + "Best," + "PyAuction Team"
 
             users = to_del.User.values.tolist()
             users = list(dict.fromkeys(users))
@@ -46,15 +45,15 @@ while True:
             for user_id in users:
                 email = users_df[users_df["username"] == user_id].email.values.tolist()
 
-                os.system("echo \"" +  str(email_message) + " \" | mutt -s \"" + "Auction Has Finished!!!" + "\" " + str(email[0]))
-
+                os.system("echo \"" + str(email_message[0]) + " \" | mutt -s \"" + "Auction Has Finished!!!" + "\" " + str(email[0]))
 
             bdf = bdf[bdf.Auction != auction_name]
             bdf.to_csv("bids.csv", index=False)
 
             for i in range(len(to_del.Auction.values)):
                 s = pd.Series(
-                    [to_del.Auction.values[i], to_del.Price.values[i], to_del.Time.values[i], to_del.User.values[i]], index=["Auction", "Price", "Time", "User"])
+                    [to_del.Auction.values[i], to_del.Price.values[i], to_del.Time.values[i], to_del.User.values[i]],
+                    index=["Auction", "Price", "Time", "User"])
                 old_df = old_df.append(s, ignore_index=True)
             old_df.to_csv('old_bids.csv', index=False)
-    time.sleep(10)
+    time.sleep(3)

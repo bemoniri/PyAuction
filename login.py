@@ -1,4 +1,3 @@
-
 from PyQt5 import QtCore, QtGui, QtWidgets
 import random
 import string
@@ -6,14 +5,23 @@ import os, sys
 import pandas as pd
 from functools import partial
 
-def send_email(text,address, title):
-    os.system("echo \"" +  text + " \" | mutt -s \"" +title + "\" " + address)
-    print("emailserf")
+
+def send_email(text, address, title):
+    """ This function sends an email with the given subject, message and"""
+
+    os.system("echo \"" + text + " \" | mutt -s \"" + title + "\" " + address)
+    print("Email Sent")
+
+
 def randomString(stringLength=10):
     """Generate a random string of fixed length """
     letters = string.ascii_lowercase
     return ''.join(random.choice(letters) for i in range(stringLength))
-def checklogin (usernames, passwords):
+
+
+def checklogin(usernames, passwords):
+    """ Check if password was correct """
+
     df = pd.read_csv("users.csv")
     user_data = df[df["username"] == usernames]
     if (user_data.empty):
@@ -28,13 +36,14 @@ def checklogin (usernames, passwords):
             print("Wrong Pass")
             return "wrong"
 
-global state
-global text_username
-global text_password
-global state
+
+global state, text_username, text_password, state
+
 
 class Register():
+    # This class is the registration page
     def setupUi(self, Dialog):
+        # To setup the register page
         Dialog.setObjectName("Dialog")
 
         self.frame = QtWidgets.QFrame(Dialog)
@@ -49,7 +58,6 @@ class Register():
         font = QtGui.QFont()
         font.setPointSize(50)
         self.title.setFont(font)
-
 
         self.username = QtWidgets.QLineEdit(self.frame)
         self.username.setGeometry(QtCore.QRect(90, 160, 421, 51))
@@ -79,22 +87,22 @@ class Register():
         submit_a = partial(self.submit, Dialog)
         self.submitbutton.clicked.connect(submit_a)
 
-    def submit (self, Dialog):
+    def submit(self, Dialog):
+        # To submit the form
         text_user = self.username.text()
         text_email = self.email.text()
         text_pass = randomString()
 
-        print(text_pass)
 
+        # Save the username and password, then send the email
         with open('users.csv', 'a+') as fd:
-            fd.write(text_user +","+ text_email +","+ text_pass+'\n')
+            fd.write(text_user + "," + text_email + "," + text_pass + '\n')
             send_email(text_pass, text_email, "PyAuction Password")
             fd.write(' \n')
         DialogR.accept()
-        print("Saved")
-
 
     def retranslateUi(self, Dialog):
+        # Handle the text in textboxes
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
         self.username.setPlaceholderText(_translate("Dialog", "Username"))
@@ -102,7 +110,10 @@ class Register():
         self.radioButton.setText(_translate("Dialog", "I Agree with Terms and Conditions"))
         self.submitbutton.setText(_translate("Dialog", "Sign Up"))
 
+
 class Login(QtWidgets.QDialog):
+    # This is the class related to the login page
+
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
 
@@ -118,7 +129,6 @@ class Login(QtWidgets.QDialog):
         font = QtGui.QFont()
         font.setPointSize(50)
         self.title.setFont(font)
-
 
         self.username = QtWidgets.QLineEdit(self.frame)
         self.username.setGeometry(QtCore.QRect(90, 160, 421, 51))
@@ -150,14 +160,14 @@ class Login(QtWidgets.QDialog):
         self.loginbutton.clicked.connect(log)
         self.registerbutton.clicked.connect(reg)
 
-    def login (self, Dialog):
+    def login(self, Dialog):
         global text_username, text_password, state
         state = "login"
         text_username = self.username.text()
         text_password = self.password.text()
         Dialog.accept()
 
-    def register (self, Dialog):
+    def register(self, Dialog):
         global state
         state = "register"
         Dialog.reject()
@@ -171,9 +181,8 @@ class Login(QtWidgets.QDialog):
         self.loginbutton.setText(_translate("Dialog", "Login"))
 
 
-# def main():
 global state
-#state = "init"
+
 app = QtWidgets.QApplication(sys.argv)
 Dialog = QtWidgets.QDialog()
 ui = Login()
@@ -184,25 +193,18 @@ uiR = Register()
 uiR.setupUi(DialogR)
 
 while True:
-    print("start loop")
     Dialog.show()
     result = app.exec_()
     if (state == "login"):
         everythingOK = checklogin(text_username, text_password)
-        print(everythingOK)
         if everythingOK == "right":
             break
     if (state == "register"):
         DialogR.show()
         appR.exec_()
-        print("state changed")
         state = "login"
-    #if (state == "init"):
-    #    result = app.exec_()
-
 
 import auctionsite
-print("dome")
+
 auctionsite.main(text_username)
-print("a")
 

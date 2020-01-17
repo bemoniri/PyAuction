@@ -1,25 +1,22 @@
-
 from PyQt5 import QtCore, QtGui, QtWidgets
-import random
-import string
 import time
 import datetime
 import os, sys
-from datetime import  datetime
+from datetime import datetime
 import pandas as pd
 from PyQt5.QtWidgets import (QWidget, QPushButton,
-    QHBoxLayout, QVBoxLayout, QApplication)
+                             QHBoxLayout, QVBoxLayout, QApplication)
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 import sys
+
 global rows
 global oldornew
 oldornew = 0
+
 from functools import partial
-#rows =    [("Newton", "1643-01-04", "Classical mechanics"),
-#           ("Einstein", "1879-03-14", "Relativity"),
-#           ("Darwin", "1809-02-12", "Evolution"),("Darwin", "1809-02-12", "Evolution"),("Darwin", "1809-02-12", "Evolution")]
+
 headers = ["Auction", "Price", "Time", "Username"]
 
 
@@ -27,20 +24,23 @@ class TableModel(QAbstractTableModel):
     def rowCount(self, parent):
         global rows
         return len(rows)
+
     def columnCount(self, parent):
         return len(headers)
+
     def data(self, index, role):
         if role != Qt.DisplayRole:
             return QVariant()
         return rows[index.row()][index.column()]
+
     def headerData(self, section, orientation, role):
         if role != Qt.DisplayRole or orientation != Qt.Horizontal:
             return QVariant()
         return headers[section]
 
+
 global profile_view
 global username
-username = "Trump"
 global state
 global text_username
 global text_password
@@ -50,6 +50,8 @@ global error_mess
 global profile_error_mess
 global want_to_see_my_bids
 global is_ref
+global buttpress
+
 is_ref = 0
 want_to_see_my_bids = 0
 profile_error_mess = ""
@@ -63,24 +65,29 @@ def accepts():
     view.setModel(model)
     view.show()
 
-global buttpress
 class SurfViewer(QtWidgets.QDialog):
 
-    def bid (self, obj, name, Dialog):
+    def bid(self, obj, name, Dialog):
         global username
+        global error_mess
+
         bid_df = pd.read_csv("bids.csv")
         text = obj.text()
         auctionDF = pd.read_csv('auctions.csv')
 
         listofauctions = auctionDF[auctionDF["Name"] == name]
         auctiontype = listofauctions["Type"].values[0]
-        bid_price = int(text)
-        #extbid = listofauctions["FirstBid"].values[0]
+        try:
+            bid_price = int(text)
+        except:
+            error_mess = "Wrong Value for Price"
+            return
+        # extbid = listofauctions["FirstBid"].values[0]
 
         bids_data = pd.read_csv('bids.csv')
         bids_data = bids_data[bids_data["Auction"] == name]
 
-        global error_mess
+
         if int(auctiontype) == 1:
             extbid = max(bids_data["Price"])
             if int(bid_price) >= int(extbid):
@@ -109,9 +116,8 @@ class SurfViewer(QtWidgets.QDialog):
         is_add = -1
         Dialog.accept()
 
-
     def logout(self):
-        #exec(open("login.py").read())
+        # exec(open("login.py").read())
         os.system("python login.py")
         quit()
 
@@ -129,14 +135,12 @@ class SurfViewer(QtWidgets.QDialog):
         want_to_see_my_bids = 1
         Dialog.accept()
 
-
     def my_oldbids(self, Dialog):
         global want_to_see_my_bids
         global oldornew
         oldornew = -1
         want_to_see_my_bids = 1
         Dialog.accept()
-
 
     def create_auction(self, obj1, obj2, obj3, obj4, obj5, Dialog):
         global username
@@ -146,13 +150,15 @@ class SurfViewer(QtWidgets.QDialog):
         type = obj2.text()
         detail = obj3.text()
         first_bid = obj4.text()
+
         duration = float(obj5.text())
 
-        fin_time = time.time() + duration*60
-        #fin_time = datetime.fromtimestamp(fin_time).strftime('%c')
+        fin_time = time.time() + duration * 60
+        # fin_time = datetime.fromtimestamp(fin_time).strftime('%c')
 
         auction_df = pd.read_csv('auctions.csv')
-        s = pd.Series([name, int(type), detail, first_bid, fin_time], index=["Name", "Type", "Details", "FirstBid", "Time"])
+        s = pd.Series([name, int(type), detail, first_bid, fin_time],
+                      index=["Name", "Type", "Details", "FirstBid", "Time"])
         auction_df = auction_df.append(s, ignore_index=True)
         auction_df.to_csv('auctions.csv', index=False)
         is_add = 1
@@ -163,8 +169,8 @@ class SurfViewer(QtWidgets.QDialog):
         bid_df.to_csv('bids.csv', index=False)
         error_mess = "Created!"
         Dialog.accept()
+
     def see_profile(self, Dialog):
-        print("See Profile")
         global profile_view
         global profile_error_mess
         profile_error_mess = ""
@@ -172,7 +178,6 @@ class SurfViewer(QtWidgets.QDialog):
         Dialog.accept()
 
     def exit_function(self, Dialog):
-        print("Return")
         global profile_view
         profile_view = 0
         Dialog.accept()
@@ -185,9 +190,9 @@ class SurfViewer(QtWidgets.QDialog):
         df = pd.read_csv("users.csv")
         real_pass = str(df[df["username"] == username].password.values[0])
 
-        if(real_pass == old):
-            if(new == repnew):
-                #df[df["username"] == username].password = new
+        if (real_pass == old):
+            if (new == repnew):
+                # df[df["username"] == username].password = new
                 df.loc[df["username"] == username, 'password'] = new
                 profile_error_mess = "Password Changed!"
             else:
@@ -198,14 +203,11 @@ class SurfViewer(QtWidgets.QDialog):
         df.to_csv("users.csv", index=False)
         Dialog.accept()
 
-
-
     def setupProfile(self, Dialog):
-        #global username
+        # global username
 
         df = pd.read_csv("users.csv")
         email = str(df[df["username"] == username].email.values[0])
-        print(email)
         self.frame = QtWidgets.QFrame(Dialog)
         self.frame.setGeometry(100, 100, 1000, 500)
         self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
@@ -218,7 +220,6 @@ class SurfViewer(QtWidgets.QDialog):
         exit_partial = partial(self.exit_function, Dialog)
         self.exitbutton.clicked.connect(exit_partial)
 
-
         self.title1 = QtWidgets.QLabel(self.frame)
         self.title1.setText("Email:   " + email)
         self.title1.setGeometry(QtCore.QRect(150, 0, 200, 30))
@@ -227,10 +228,7 @@ class SurfViewer(QtWidgets.QDialog):
         self.title.setText("Username:   " + username)
         self.title.setGeometry(QtCore.QRect(150, 30, 200, 30))
 
-
         # Change Password
-
-
 
         self.old_t = QtWidgets.QLabel(self.frame)
         self.old_t.setText("Old Password")
@@ -243,8 +241,6 @@ class SurfViewer(QtWidgets.QDialog):
         self.repnew_t = QtWidgets.QLabel(self.frame)
         self.repnew_t.setText("Repeat Password")
         self.repnew_t.setGeometry(QtCore.QRect(135 + 300, 100, 150, 51))
-
-
 
         self.old = QtWidgets.QLineEdit(self.frame)
         self.old.setGeometry(QtCore.QRect(150, 150, 100, 51))
@@ -276,12 +272,16 @@ class SurfViewer(QtWidgets.QDialog):
         cpf_partial = partial(self.change_pass_function, self.old, self.new, self.repnew, Dialog)
         self.changebutton.clicked.connect(cpf_partial)
 
-
-        #global error_mess
+        # global error_mess
         global profile_error_mess
         self.warning = QtWidgets.QLabel(self.frame)
         self.warning.setText(profile_error_mess)
-        self.warning.setGeometry(QtCore.QRect(300 + 100, 200, 200, 200))
+        self.warning.setGeometry(QtCore.QRect(300 + 100, 250, 200, 301))
+        font = QtGui.QFont()
+        font.setFamily("Free Serif")
+        font.setPixelSize(20)
+        font.setBold(True)
+        self.warning.setFont(font)
 
         self.see_mybids = QtWidgets.QPushButton(self.frame)
         self.see_mybids.setText("Active Bids")
@@ -296,8 +296,6 @@ class SurfViewer(QtWidgets.QDialog):
 
         myoldbids_partial = partial(self.my_oldbids, Dialog)
         self.see_otherbids.clicked.connect(myoldbids_partial)
-
-
 
     def setupUi(self, Dialog):
         finish = QAction("Quit", self)
@@ -321,7 +319,7 @@ class SurfViewer(QtWidgets.QDialog):
 
         super(SurfViewer, self).__init__()
         self.frame = QtWidgets.QFrame(Dialog)
-        #self.frame.setGeometry(QtCore.QRect(500, 500, 500, 500))
+
         self.frame.setGeometry(100, 100, 1100, 530)
         self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame.setObjectName("frame")
@@ -345,12 +343,11 @@ class SurfViewer(QtWidgets.QDialog):
 
         self.profile = QtWidgets.QPushButton(self.frame)
         self.profile.setText("Profile")
-        self.profile.setGeometry(QtCore.QRect(450+450, 50, 100, 51))
+        self.profile.setGeometry(QtCore.QRect(450 + 450, 50, 100, 51))
 
         prof_partial = partial(self.see_profile, Dialog)
-        #self.addAuction.clicked.connect(make_auction)
+        # self.addAuction.clicked.connect(make_auction)
         self.profile.clicked.connect(prof_partial)
-
 
         self.logoutobj = QtWidgets.QPushButton(self.frame)
         self.logoutobj.setText("Logout")
@@ -359,26 +356,25 @@ class SurfViewer(QtWidgets.QDialog):
         log = partial(self.logout)
         self.logoutobj.clicked.connect(log)
 
-
         self.un = QtWidgets.QLabel(self.frame)
         self.un.setText("Username: " + "\n" + username)
-        self.un.setGeometry(QtCore.QRect(450+450, 0, 100, 51))
+        self.un.setGeometry(QtCore.QRect(450 + 450, 0, 100, 51))
 
         self.title1 = QtWidgets.QLabel(self.frame)
         self.title1.setText("Name")
         self.title1.setGeometry(QtCore.QRect(175, 0, 100, 51))
 
         self.title2 = QtWidgets.QLabel(self.frame)
-        self.title2.setText("Monaghese (0)"+ "\n" + "Mozayedeh (1)")
-        self.title2.setGeometry(QtCore.QRect(150+150, 0, 100, 51))
+        self.title2.setText("Monaghese (0)" + "\n" + "Mozayedeh (1)")
+        self.title2.setGeometry(QtCore.QRect(150 + 150, 0, 100, 51))
 
         self.title3 = QtWidgets.QLabel(self.frame)
         self.title3.setText("Detail")
-        self.title3.setGeometry(QtCore.QRect(175+300, 0, 100, 51))
+        self.title3.setGeometry(QtCore.QRect(175 + 300, 0, 100, 51))
 
         self.title4 = QtWidgets.QLabel(self.frame)
         self.title4.setText("First Bid")
-        self.title4.setGeometry(QtCore.QRect(175+450, 0, 100, 51))
+        self.title4.setGeometry(QtCore.QRect(175 + 450, 0, 100, 51))
 
         self.title5 = QtWidgets.QLabel(self.frame)
         self.title5.setText("Duration")
@@ -387,8 +383,13 @@ class SurfViewer(QtWidgets.QDialog):
         global error_mess
         self.warning = QtWidgets.QLabel(self.frame)
         self.warning.setText(error_mess)
-        self.warning.setGeometry(QtCore.QRect(300 + 100, 200, 100, 51))
+        self.warning.setGeometry(QtCore.QRect(300 + 100, 350, 200, 301))
+        font = QtGui.QFont()
+        font.setFamily("Free Serif")
+        font.setPixelSize(20)
 
+        font.setBold(True)
+        self.warning.setFont(font)
 
         self.textbox1 = QtWidgets.QLineEdit(self.frame)
         self.textbox1.setGeometry(QtCore.QRect(150, 50, 100, 51))
@@ -430,7 +431,8 @@ class SurfViewer(QtWidgets.QDialog):
         self.textbox5.setReadOnly(False)
         self.textbox5.setObjectName("lineEdit")
 
-        make_auction = partial(self.create_auction, self.textbox1, self.textbox2, self.textbox3, self.textbox4, self.textbox5, Dialog)
+        make_auction = partial(self.create_auction, self.textbox1, self.textbox2, self.textbox3, self.textbox4,
+                               self.textbox5, Dialog)
         self.addAuction.clicked.connect(make_auction)
 
         for index, row in df1.iterrows():
@@ -440,13 +442,13 @@ class SurfViewer(QtWidgets.QDialog):
             bids_data = bids_data[bids_data["Auction"] == name]
             price = max(bids_data["Price"])
 
-            #price = row['FirstBid']
+            # price = row['FirstBid']
             time = row['Time']
             time = datetime.fromtimestamp(int(time)).strftime('%c')
 
             self.title = QtWidgets.QLabel(self.frame)
             self.title.setText("Name: " + name + "\n" + "Max Price: " + str(price) + "\n" + "Time: " + str(time))
-            self.title.setGeometry(QtCore.QRect(150, 160 + 110*i, 250, 51))
+            self.title.setGeometry(QtCore.QRect(150, 160 + 110 * i, 250, 51))
 
             self.textbox = QtWidgets.QLineEdit(self.frame)
             self.textbox.setGeometry(QtCore.QRect(150, 220 + 110 * i, 100, 31))
@@ -482,16 +484,16 @@ class SurfViewer(QtWidgets.QDialog):
 
             self.title = QtWidgets.QLabel(self.frame)
             self.title.setText("Name: " + name + "\n" + "Min Price: " + str(price) + "\n" + "Time: " + str(time))
-            self.title.setGeometry(QtCore.QRect(150+530, 160 + 110 * i, 250, 51))
+            self.title.setGeometry(QtCore.QRect(150 + 530, 160 + 110 * i, 250, 51))
 
             self.button = QtWidgets.QPushButton(self.frame)
             self.button.setText("See Bids")
-            self.button.setGeometry(QtCore.QRect(0+530, 160 + 110 * i, 100, 51))
+            self.button.setGeometry(QtCore.QRect(0 + 530, 160 + 110 * i, 100, 51))
             display_a = partial(self.done, name, Dialog)
             self.button.clicked.connect(display_a)
 
             self.textbox = QtWidgets.QLineEdit(self.frame)
-            self.textbox.setGeometry(QtCore.QRect(530+150, 220 + 110 * i, 100, 31))
+            self.textbox.setGeometry(QtCore.QRect(530 + 150, 220 + 110 * i, 100, 31))
             self.textbox.setStyleSheet("background-color: rgb(213, 213, 213);")
             self.textbox.setInputMask("")
             self.textbox.setText("")
@@ -500,19 +502,20 @@ class SurfViewer(QtWidgets.QDialog):
 
             self.bidbutton = QtWidgets.QPushButton(self.frame)
             self.bidbutton.setText("Bid")
-            self.bidbutton.setGeometry(QtCore.QRect(0+530, 220 + 110 * i, 100, 31))
+            self.bidbutton.setGeometry(QtCore.QRect(0 + 530, 220 + 110 * i, 100, 31))
 
             bid_auction = partial(self.bid, self.textbox, name, Dialog)
             self.bidbutton.clicked.connect(bid_auction)
 
             bids_df = pd.read_csv("bids.csv")
 
-#if __name__ == '__main__':
+
+# if __name__ == '__main__':
 def main(username_input):
-    print("auction site")
+    print("Auction Site")
     global username
     global is_add
-    username= username_input
+    username = username_input
     app = QtWidgets.QApplication(sys.argv)
     Dialog = QtWidgets.QDialog()
     DialogP = QtWidgets.QDialog()
@@ -521,9 +524,9 @@ def main(username_input):
     ui = SurfViewer()
     ui.setupUi(Dialog)
     headers = ["Auction", "Price", "Time", "Username"]
-    #model = TableModel()
-    #view = QTableView()
-    #view.setModel(model)
+    # model = TableModel()
+    # view = QTableView()
+    # view.setModel(model)
 
     ui.setupUi(Dialog)
     Dialog.show()
@@ -537,14 +540,13 @@ def main(username_input):
         if (profile_view):
             while True:
                 DialogP = QtWidgets.QDialog()
-                print("profile view down")
                 ui_p = SurfViewer()
                 ui_p.setupProfile(DialogP)
                 DialogP.show()
                 result = app.exec_()
-                if(want_to_see_my_bids == 1):
-                    if(oldornew == 1):
-                        #global username
+                if (want_to_see_my_bids == 1):
+                    if (oldornew == 1):
+                        # global username
                         df = pd.read_csv("bids.csv")
                         rows = df[df["User"] == username].values.tolist()
                         model = TableModel()
@@ -561,9 +563,7 @@ def main(username_input):
                         view.show()
                         want_to_see_my_bids = 0
 
-
-                if(profile_view == 0):
-                    print("wronf plca wrong time")
+                if (profile_view == 0):
                     break
 
                 del ui_p
@@ -581,21 +581,15 @@ def main(username_input):
             ui.setupUi(Dialog)
             Dialog.show()
 
-            if(is_add == 0):
-                #global rows
+            if (is_add == 0):
+                # global rows
                 df = pd.read_csv("bids.csv")
-                rows= df[df["Auction"]==buttpress].values.tolist()
+                rows = df[df["Auction"] == buttpress].values.tolist()
                 model = TableModel()
                 view = QTableView()
                 view.setModel(model)
                 view.show()
-            #if(is_add = -1):
+            # if(is_add = -1):
 
             is_add = 0
-            print('hop')
             result = app.exec_()
-
-            #view.show()
-            #ui.setupUi(Dialog)
-            #Dialog.show()
-            #apps.exec_()
