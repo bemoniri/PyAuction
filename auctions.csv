@@ -1,5 +1,4 @@
 Name,Type,Details,FirstBid,Time
-ali,1,,12,2020-01-08 11:18:24.432140
-auctionbala,0,,10,2020-01-08 11:21:38.232071
-tests,0,,12,2020-01-08 11:33:39.080504
-new,0,,12,2020-01-08 11:34:25.050822
+test,0,my first auction,30,Fri 17 Jan 2020 01:24:42 PM 
+test,1,my first auction,30,Fri 17 Jan 2020 12:56:34 PM 
+my,1,fitst,55,Fri 17 Jan 2020 12:29:52 PM 
