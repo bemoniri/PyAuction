@@ -14,6 +14,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 import sys
 global rows
+global oldornew
+oldornew = 0
 from functools import partial
 #rows =    [("Newton", "1643-01-04", "Classical mechanics"),
 #           ("Einstein", "1879-03-14", "Relativity"),
@@ -47,6 +49,8 @@ global is_add
 global error_mess
 global profile_error_mess
 global want_to_see_my_bids
+global is_ref
+is_ref = 0
 want_to_see_my_bids = 0
 profile_error_mess = ""
 error_mess = ""
@@ -100,7 +104,10 @@ class SurfViewer(QtWidgets.QDialog):
         is_add = -1
         Dialog.accept()
 
-
+    def refresh_func(self, Dialog):
+        global is_add
+        is_add = -1
+        Dialog.accept()
 
 
     def logout(self):
@@ -117,6 +124,16 @@ class SurfViewer(QtWidgets.QDialog):
 
     def my_bids(self, Dialog):
         global want_to_see_my_bids
+        global oldornew
+        oldornew = 1
+        want_to_see_my_bids = 1
+        Dialog.accept()
+
+
+    def my_oldbids(self, Dialog):
+        global want_to_see_my_bids
+        global oldornew
+        oldornew = -1
         want_to_see_my_bids = 1
         Dialog.accept()
 
@@ -132,7 +149,7 @@ class SurfViewer(QtWidgets.QDialog):
         duration = float(obj5.text())
 
         fin_time = time.time() + duration*60
-        fin_time = datetime.fromtimestamp(fin_time).strftime('%c')
+        #fin_time = datetime.fromtimestamp(fin_time).strftime('%c')
 
         auction_df = pd.read_csv('auctions.csv')
         s = pd.Series([name, int(type), detail, first_bid, fin_time], index=["Name", "Type", "Details", "FirstBid", "Time"])
@@ -269,8 +286,16 @@ class SurfViewer(QtWidgets.QDialog):
         self.see_mybids = QtWidgets.QPushButton(self.frame)
         self.see_mybids.setText("Active Bids")
         self.see_mybids.setGeometry(QtCore.QRect(0, 250, 250, 51))
+
+        self.see_otherbids = QtWidgets.QPushButton(self.frame)
+        self.see_otherbids.setText("My Old Bids")
+        self.see_otherbids.setGeometry(QtCore.QRect(300, 250, 250, 51))
+
         mybids_partial = partial(self.my_bids, Dialog)
         self.see_mybids.clicked.connect(mybids_partial)
+
+        myoldbids_partial = partial(self.my_oldbids, Dialog)
+        self.see_otherbids.clicked.connect(myoldbids_partial)
 
 
 
@@ -307,6 +332,13 @@ class SurfViewer(QtWidgets.QDialog):
         df2 = df[df["Type"] == 0]
 
         i = -1
+
+        self.Refresh = QtWidgets.QPushButton(self.frame)
+        self.Refresh.setText("Refresh")
+        self.Refresh.setGeometry(QtCore.QRect(0, 0, 100, 31))
+        refresh_partial = partial(self.refresh_func, Dialog)
+        self.Refresh.clicked.connect(refresh_partial)
+
         self.addAuction = QtWidgets.QPushButton(self.frame)
         self.addAuction.setText("Add Auction")
         self.addAuction.setGeometry(QtCore.QRect(0, 50, 100, 51))
@@ -410,6 +442,7 @@ class SurfViewer(QtWidgets.QDialog):
 
             #price = row['FirstBid']
             time = row['Time']
+            time = datetime.fromtimestamp(int(time)).strftime('%c')
 
             self.title = QtWidgets.QLabel(self.frame)
             self.title.setText("Name: " + name + "\n" + "Max Price: " + str(price) + "\n" + "Time: " + str(time))
@@ -445,6 +478,7 @@ class SurfViewer(QtWidgets.QDialog):
             bids_data = bids_data[bids_data["Auction"] == name]
             price = min(bids_data["Price"])
             time = row['Time']
+            time = datetime.fromtimestamp(int(time)).strftime('%c')
 
             self.title = QtWidgets.QLabel(self.frame)
             self.title.setText("Name: " + name + "\n" + "Min Price: " + str(price) + "\n" + "Time: " + str(time))
@@ -496,6 +530,8 @@ def main(username_input):
     result = app.exec_()
     global rows
     global want_to_see_my_bids
+    global oldornew
+
     while 1:
         global profile_view
         if (profile_view):
@@ -507,15 +543,24 @@ def main(username_input):
                 DialogP.show()
                 result = app.exec_()
                 if(want_to_see_my_bids == 1):
+                    if(oldornew == 1):
+                        #global username
+                        df = pd.read_csv("bids.csv")
+                        rows = df[df["User"] == username].values.tolist()
+                        model = TableModel()
+                        view = QTableView()
+                        view.setModel(model)
+                        view.show()
+                        want_to_see_my_bids = 0
+                    else:
+                        df = pd.read_csv("old_bids.csv")
+                        rows = df[df["User"] == username].values.tolist()
+                        model = TableModel()
+                        view = QTableView()
+                        view.setModel(model)
+                        view.show()
+                        want_to_see_my_bids = 0
 
-                    #global username
-                    df = pd.read_csv("bids.csv")
-                    rows = df[df["User"] == username].values.tolist()
-                    model = TableModel()
-                    view = QTableView()
-                    view.setModel(model)
-                    view.show()
-                    want_to_see_my_bids = 0
 
                 if(profile_view == 0):
                     print("wronf plca wrong time")

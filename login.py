@@ -7,7 +7,7 @@ import pandas as pd
 from functools import partial
 
 def send_email(text,address, title):
-    #os.system("echo \"" +  text + " \" | mutt -s \"" +title + "\" " + address)
+    os.system("echo \"" +  text + " \" | mutt -s \"" +title + "\" " + address)
     print("emailserf")
 def randomString(stringLength=10):
     """Generate a random string of fixed length """
